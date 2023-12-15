@@ -1,28 +1,48 @@
+#!/usr/bin/env groovy
 pipeline {
-    agent { label 'node-agent' }
-    
-    stages{
-        stage('Code'){
-            steps{
-                git url: 'https://github.com/LondheShubham153/node-todo-cicd.git', branch: 'master' 
-            }
-        }
-        stage('Build and Test'){
-            steps{
-                sh 'docker build . -t trainwithshubham/node-todo-test:latest'
-            }
-        }
-        stage('Push'){
-            steps{
-                withCredentials([usernamePassword(credentialsId: 'dockerHub', passwordVariable: 'dockerHubPassword', usernameVariable: 'dockerHubUser')]) {
-        	     sh "docker login -u ${env.dockerHubUser} -p ${env.dockerHubPassword}"
-                 sh 'docker push trainwithshubham/node-todo-test:latest'
+    agent any
+
+    environment {
+        AWS_REGION = 'ap-southeast-2'
+        ECS_CLUSTER = 'Sample'
+        ECS_SERVICE = 'Sample'
+        DOCKER_IMAGE_NAME = 'nodejs'
+        AWS_CREDENTIALS = 'AWS_Credentials' // Should be configured in Jenkins Credentials
+    }
+
+    stages {
+       stage('Git Checkout') {
+            steps {
+                script {
+                    git branch: 'main',
+                        url: 'https://github.com/Akshay-Vallam/NodeJS-Demo'
                 }
             }
         }
-        stage('Deploy'){
-            steps{
-                sh "docker-compose down && docker-compose up -d"
+
+        stage('Build and Push Docker Image') {
+            steps {
+                script {
+                    // Build and push your Docker image to a registry
+                    sh "docker build -t $DOCKER_IMAGE_NAME ."
+                    sh "docker tag nodejs:latest 915270456781.dkr.ecr.ap-southeast-2.amazonaws.com/nodejs:latest"
+                    sh "docker push 915270456781.dkr.ecr.ap-southeast-2.amazonaws.com/nodejs:latest"
+                }
+            }
+        }
+
+        stage('Deploy to ECS') {
+            steps {
+                script {
+                    // Configure AWS credentials
+                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', accessKeyVariable: 'AWS_ACCESS_KEY_ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY', credentialsId: "$AWS_CREDENTIALS"]]) {
+                        // Update ECS task definition with the new Docker image
+                        sh "aws ecs register-task-definition --cli-input-json file=ecs-task-definition.json"
+
+                        // Update ECS service to use the new task definition
+                        sh "aws ecs update-service --cluster $ECS_CLUSTER --service $ECS_SERVICE --task-definition $DOCKER_IMAGE_NAME:latest"
+                    }
+                }
             }
         }
     }
