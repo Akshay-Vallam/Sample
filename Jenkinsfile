@@ -28,7 +28,6 @@ pipeline {
                         // Build and push your Docker image to a registry
                         sh "sudo docker build -t $DOCKER_IMAGE_NAME ."
                         sh "sudo docker tag nodejs:latest 915270456781.dkr.ecr.ap-southeast-2.amazonaws.com/nodejs:latest"
-                        sh "sudo aws configure=$AWS_CREDENTIALS"
                         sh "sudo docker push 915270456781.dkr.ecr.ap-southeast-2.amazonaws.com/nodejs:latest"
                 }
             }
