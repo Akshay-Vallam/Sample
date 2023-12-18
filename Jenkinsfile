@@ -35,8 +35,9 @@ pipeline {
                     }
 
                     // Build and push Docker image to ECR
-                    sh "sudo docker build -t ${ECR_REPO_URL}:${IMAGE_TAG} ."
-                    sh "sudo docker push ${ECR_REPO_URL}:${IMAGE_TAG}"
+                    sh "sudo docker build -t nodejs ."
+                    sh "sudo docker tag nodejs:latest 915270456781.dkr.ecr.ap-southeast-2.amazonaws.com/nodejs:latest"
+                    sh "sudo docker push 915270456781.dkr.ecr.ap-southeast-2.amazonaws.com/nodejs:latest"
                 }
             }
         }
