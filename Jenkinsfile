@@ -7,7 +7,7 @@ pipeline {
         ECS_CLUSTER = 'Sample'
         ECS_SERVICE = 'Sample'
         DOCKER_IMAGE_NAME = 'nodejs'
-        AWS_Credentials = 'AWS_Credentials' // Should be configured in Jenkins Credentials
+        AWS_CREDENTIALS = 'AWS_Credentials' // Should be configured in Jenkins Credentials
     }
 
     stages {
@@ -26,7 +26,7 @@ pipeline {
                     // Build and push your Docker image to a registry
                     sh "sudo docker build -t $DOCKER_IMAGE_NAME ."
                     sh "sudo docker tag nodejs:latest 915270456781.dkr.ecr.ap-southeast-2.amazonaws.com/nodejs:latest"
-                    sh "sudo aws configure=$AWS_Credentials"
+                    sh "sudo aws configure=$AWS_CREDENTIALS"
                     sh "sudo docker push 915270456781.dkr.ecr.ap-southeast-2.amazonaws.com/nodejs:latest"
                 }
             }
@@ -36,7 +36,7 @@ pipeline {
             steps {
                 script {
                     // Configure AWS credentials
-                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', accessKeyVariable: 'AWS_ACCESS_KEY_ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY', credentialsId: "$AWS_Credentials"]]) {
+                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', accessKeyVariable: 'AWS_ACCESS_KEY_ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY', credentialsId: "$AWS_CREDENTIALS"]]) {
                         // Update ECS task definition with the new Docker image
                         sh "aws ecs register-task-definition --cli-input-json file=ecs-task-definition.json"
 
