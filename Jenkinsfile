@@ -25,7 +25,7 @@ pipeline {
                 script {
                     sh "sudo docker build -t $DOCKER_IMAGE_NAME ."
                     sh "sudo docker tag nodejs:latest 915270456781.dkr.ecr.ap-southeast-2.amazonaws.com/nodejs:latest"
-                    sh "sudo aws configure accessKeyVariable: 'AWS_ACCESS_KEY_ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY', credentialsId: "$AWS_CREDENTIALS"
+                    sh "sudo aws configure --accessKeyVariable=$AWS_ACCESS_KEY_ID --secretKeyVariable=$AWS_SECRET_ACCESS_KEY"
                     sh "sudo docker push 915270456781.dkr.ecr.ap-southeast-2.amazonaws.com/nodejs:latest"
                 }
             }
