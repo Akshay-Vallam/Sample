@@ -35,7 +35,6 @@ pipeline {
                     }
 
                     // Build and push Docker image to ECR
-                    sh "sudo docker build -t nodejs ."
                     sh "docker build -t ${ECR_REPO_URL}:${IMAGE_TAG} ."
                     sh "docker push ${ECR_REPO_URL}:${IMAGE_TAG}"
                 }
