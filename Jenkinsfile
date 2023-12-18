@@ -3,6 +3,8 @@ pipeline {
     agent any
 
     environment {
+        ECR_REPO_URL = '915270456781.dkr.ecr.ap-southeast-2.amazonaws.com/nodejs'
+        IMAGE_TAG = 'latest' // Change this to your desired tag
         AWS_REGION = 'ap-southeast-2'
         ECS_CLUSTER = 'Sample'
         ECS_SERVICE = 'Sample'
@@ -19,18 +21,26 @@ pipeline {
                 }
             }
         }
-
-        stage('Build and Push Docker Image') {
+        stage('ECR Login and Push') {
             steps {
                 script {
-                    sh "sudo docker build -t $DOCKER_IMAGE_NAME ."
-                    sh "sudo docker tag nodejs:latest 915270456781.dkr.ecr.ap-southeast-2.amazonaws.com/nodejs:latest"
-                    sh "sudo aws configure --accessKeyVariable=$AWS_ACCESS_KEY_ID --secretKeyVariable=$AWS_SECRET_ACCESS_KEY"
-                    sh "sudo docker push 915270456781.dkr.ecr.ap-southeast-2.amazonaws.com/nodejs:latest"
+                    // Login to AWS ECR
+                    withCredentials([[
+                        $class: 'AmazonWebServicesCredentialsBinding',
+                        accessKeyVariable: 'AWS_ACCESS_KEY_ID',
+                        credentialsId: 'your-credentials-id',
+                        secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
+                    ]]) {
+                        sh "aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REPO_URL}"
+                    }
+
+                    // Build and push Docker image to ECR
+                    sh "sudo docker build -t ${ECR_REPO_URL}:${IMAGE_TAG} ."
+                    sh "sudo docker push ${ECR_REPO_URL}:${IMAGE_TAG}"
                 }
             }
         }
-
+    }
         stage('Deploy to ECS') {
             steps {
                 script {
