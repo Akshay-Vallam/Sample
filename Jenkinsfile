@@ -35,8 +35,8 @@ pipeline {
                     }
 
                     // Build and push Docker image to ECR
-                    sh "docker build -t ${ECR_REPO_URL}:${IMAGE_TAG} ."
-                    sh "docker push ${ECR_REPO_URL}:${IMAGE_TAG}"
+                    sh "sudo docker build -t ${ECR_REPO_URL}:${IMAGE_TAG} ."
+                    sh "sudo docker push ${ECR_REPO_URL}:${IMAGE_TAG}"
                 }
             }
         }
