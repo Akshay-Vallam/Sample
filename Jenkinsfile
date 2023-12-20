@@ -17,7 +17,7 @@ pipeline {
             steps {
                 script {
                     git branch: 'main',
-                        url: 'https://github.com/Akshay-Vallam/NodeJS-Demo'
+                        url: 'https://github.com/Akshay-Vallam/Sample'
                 }
             }
         }
@@ -34,7 +34,7 @@ pipeline {
                         sh "sudo chmod 666 /var/run/docker.sock"
                         sh "aws ecr get-login-password --region ap-southeast-2 | docker login --username AWS --password-stdin 915270456781.dkr.ecr.ap-southeast-2.amazonaws.com"
                     }
-
+                    
                     // Build and push Docker image to ECR
                     sh "sudo docker build -t ${ECR_REPO_URL}:${IMAGE_TAG} ."
                     sh "sudo docker push ${ECR_REPO_URL}:${IMAGE_TAG}"
