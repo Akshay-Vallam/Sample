@@ -32,7 +32,6 @@ pipeline {
                         secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
                     ]]) {
                         sh "sudo chmod 666 /var/run/docker.sock"
-                        sh "eval $(aws ecr get-login --no-include-email | sed ‘s|https://||’)"
                         sh "aws ecr get-login-password --region ap-southeast-2 | docker login --username AWS --password-stdin 915270456781.dkr.ecr.ap-southeast-2.amazonaws.com"
                     }
 
